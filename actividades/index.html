@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WeLee</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<iframe src="actividades/index.html"
+        id="widget-flotante"
+        style="position:fixed; top:0; left:0; width:100px; height:100px; border:none; z-index:9999; pointer-events:auto;">
+</iframe>
+
+
+<canvas id="canvas"></canvas>
+
+<div id="icons" class="glass-buttons">
+  <div class="glass-text">
+    <h1>WILBERTH ACOSTA</h1>
+<p>Full Stack DEV</p>
+  </div>
+
+  <div class="glass-actions">
+ <button class="glass-btn">PRIVATE</button>
+
+<a href="https://w3l33.github.io/cv" class="glass-btn-link">   
+    <button class="glass-btn">PUBLIC</button>
+</a>
+    <button class="glass-btn">CONTACT</button>
+  </div>
+</div>
+
+
+<!-- ===== CONTACT MODAL ===== -->
+<div id="contact-modal" class="glass-modal hidden">
+  <div class="glass-modal-content">
+    <h2>Contacto</h2>
+
+    <form id="contact-form">
+      <input id="contact-name" name="from_name" type="text" placeholder="Nombre" required>
+      <input name="reply_to" type="email" placeholder="Correo" required>
+      <textarea name="message" placeholder="Mensaje" rows="4" required></textarea>
+<div id="form-status" class="hidden"></div>
+
+      <div class="modal-actions">
+        <button id="submit-btn" type="submit" class="glass-btn">Enviar</button>
+        <button type="button" class="glass-btn secondary" id="close-modal">Cerrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- ========== SHADERS (NO SE TOCAN EN JS) ========== -->
+
+<script id="vertexShader" type="x-shader/x-vertex">
+attribute vec2 a_position;
+varying vec2 v_uv;
+
+void main() {
+  v_uv = vec2(a_position.x, -a_position.y) * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}
+</script>
+
+<script id="fragmentShader" type="x-shader/x-fragment">
+precision mediump float;
+
+uniform sampler2D u_background;
+uniform vec2 u_resolution;
+uniform vec2 u_viewport;
+uniform vec2 u_mouse;
+uniform vec2 u_size;
+uniform vec2 u_imageResolution;
+uniform float u_dpr;
+
+varying vec2 v_uv;
+
+/* ---------- UTIL ---------- */
+
+float hash(vec2 p) {
+  return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453);
+}
+
+float noise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+
+  float a = hash(i);
+  float b = hash(i + vec2(1.0,0.0));
+  float c = hash(i + vec2(0.0,1.0));
+  float d = hash(i + vec2(1.0,1.0));
+
+  return mix(mix(a,b,f.x), mix(c,d,f.x), f.y);
+}
+
+float roundedBox(vec2 p, vec2 b, float r) {
+  vec2 d = abs(p) - b + r;
+  return length(max(d, 0.0)) - r;
+}
+
+/* ---------- COVER UV ---------- */
+
+vec2 coverUV(vec2 uv, vec2 viewport, vec2 image) {
+  float viewAspect = viewport.x / viewport.y;
+  float imgAspect  = image.x / image.y;
+
+  vec2 scale = vec2(1.0);
+
+  if (viewAspect > imgAspect) {
+    scale.y = imgAspect / viewAspect;
+  } else {
+    scale.x = viewAspect / imgAspect;
+  }
+
+  return clamp((uv - 0.5) * scale + 0.5, 0.001, 0.999);
+}
+
+void main() {
+  vec2 pixel = (v_uv * u_resolution) / u_dpr;
+  vec2 center = u_mouse;
+  vec2 halfSize = u_size * 0.5;
+
+  float dist = roundedBox(pixel - center, halfSize, 22.0);
+
+  vec2 bgUV = coverUV(v_uv, u_viewport, u_imageResolution);
+  vec3 base = texture2D(u_background, bgUV).rgb;
+
+  if (dist > 2.0) {
+    gl_FragColor = vec4(base, 1.0);
+    return;
+  }
+
+  float mask = smoothstep(2.0, -4.0, dist);
+
+  vec2 localUV = (pixel - center) / u_size;
+  vec2 n;
+  n.x = noise(localUV * 12.0);
+  n.y = noise(localUV * 12.0 + 10.0);
+  n = (n - 0.5) * 2.0;
+
+  float edgeBoost = smoothstep(0.0, 0.7, length(localUV));
+  vec2 offset = n * 0.015 * mix(0.7, 1.2, edgeBoost) * mask;
+
+  vec3 refracted = texture2D(u_background, bgUV + offset).rgb;
+
+  vec3 glass = mix(base, refracted, 0.9);
+  glass = mix(glass, vec3(0.92), mask * 0.25);
+
+  gl_FragColor = vec4(glass, 0.88);
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
