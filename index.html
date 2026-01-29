@@ -113,6 +113,7 @@ color: #666;
         <li><a href="#preguntas4">Pregunta clase 6</a></li>
         <li><a href="#clase4">Clase 6</a></li>
         <li><a href="#preguntas5">Pregunta clase 7</a></li>
+        <li><a href="#clase5">Clase 7</a></li>
         
         
       </ul>
@@ -182,7 +183,7 @@ color: #666;
         <p><a href="#">⬆ Volver a la lista</a></p>
       </article>
 
-       <article id="clase3">
+       <article id="clase2">
         <h3>Clase 3</h3>
         <p><strong>Desarrollo:</strong> 
         </p>
@@ -241,7 +242,7 @@ color: #666;
         <p><a href="#">⬆ Volver a la lista</a></p>
       </article>
 
-      <article id="clase4">
+      <article id="clase3">
         <h3>Clase 4</h3>
         <p><strong>Desarrollo:</strong> 
         </p>
@@ -276,7 +277,7 @@ color: #666;
       </article>
 
       <article id="preguntas3">
-        <h3>Preguntas clase 3</h3>
+        <h3>Preguntas clase 5</h3>
         <p><strong>Desarrollo:</strong> 
          </p> 
 
@@ -399,7 +400,7 @@ color: #666;
         <p><a href="#">⬆ Volver a la lista</a></p>
       </article>
 
-      <article id="clase5">
+      <article id="preguntas5">
         <h3>Preguntas clase 7</h3>
         <p><strong>Desarrollo:</strong> 
          </p> 
@@ -415,9 +416,73 @@ color: #666;
 
         </p>
 
+        <p><a href="#">⬆ Volver a la lista</a></p>
+        </article>
+
+        <article id="clase5">
+        <h3>Clase 7</h3>
+        <p><strong>Desarrollo:</strong> 
+         </p> 
+
+          <p>
+            CÓDIGO DE LISTA ENLAZADA EN PYTHON
+            </p> 
+
+          <pre><code>
+             class Nodo:
+    def __init__(self, dato): 
+        self.dato = dato
+        self.siguiente = None
+
+class Lista:
+    def __init__(self):
+        self.cabeza = None
+
+    def agregar(self, posicion, dato):
+        nuevo = Nodo(dato)
+
+        if posicion == 0:
+            nuevo.siguiente = self.cabeza
+            self.cabeza = nuevo
+            return
+
+        actual = self.cabeza
+        for _ in range(posicion - 1):
+            if actual is None:
+                return
+            actual = actual.siguiente
         
+        nuevo.siguiente = actual.siguiente
+        actual.siguiente = nuevo
+
+    def mostrar(self):
+        actual = self.cabeza
+        while actual is not None:
+            print(actual.dato, end=" -> ")
+            actual = actual.siguiente
+        print("None")
+
+
+lista = Lista()
+
+lista.agregar(0, 10)
+lista.agregar(1, 20)
+lista.agregar(1, 15)
+lista.agregar(0, 5)
+lista.agregar(4, 30)
+lista.agregar(2, 67)
+
+lista.mostrar()
+                          </code></pre>
+
+          <p><a href="#">⬆ Volver a la lista</a></p>
+          </article>
+
+
+
+          
         
-    </section>
+ </section>
 
   </main>
 
@@ -426,6 +491,7 @@ color: #666;
 </footer>
 </body>
 </html>
+
 
 
 
